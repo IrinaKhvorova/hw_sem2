@@ -40,4 +40,6 @@ def fasta_table(file_name):
             print(str(s.seq.count(i)).center(max_stat + 2), end='')
         print()
 
-test = fasta_table('test.fasta')
+
+if __name__ == '__main__':
+    fasta_table('test.fasta')
