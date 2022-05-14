@@ -14,13 +14,10 @@ class LinkedList:
     def __repr__(self):  # чтобы можно было красиво вывести
         node = self.head
         nodes = []  # для значений связанного списка
-        if self.head is None:
-            return 'None'
         while node is not None:
             nodes.append(str(node.data))  # добавляем значения связанного списка
             node = node.next
-        #nodes.append('None')  # для конца списка или при нулевом связанном списке
-        return "->".join(nodes)
+        return '[' + ", ".join(nodes) + ']'
 
     def __iter__(self):  # итерация по связанному списку
         node = self.head
@@ -57,21 +54,30 @@ class LinkedList:
 
     def remove(self, index=None):
         if self.head is None:   # если список пустой
-            raise ValueError("Linked list is empty")
+            raise IndexError("Linked list is empty")
         elif index == 0:        # удаление первого элемента
+            node = self.head
             self.head = self.head.next
+            return node.data
         elif index is None and self.head.next is None:
+            node = self.head
             self.head = None
+            return node.data
         else:                   # вставка по индексу
             previous_node = self.head
-            i = 0
-            for node in self:
-                if i == index:
-                    previous_node.next = node.next
-                if index is None and node.next is None:
-                    previous_node.next = None
+            current_node = self.head.next
+            i = 1
+            while current_node.next is not None and (index is None or i < index):
+                previous_node = current_node
+                current_node = current_node.next
                 i += 1
-                previous_node = node
+            if index is None:
+                previous_node.next = None
+            elif i == index:
+                previous_node.next = current_node.next
+            else:
+                raise IndexError("Wrong index")
+            return current_node.data
 
 
 class Stack:
@@ -120,15 +126,15 @@ class Queue:
 # print(llist)
 
 
-q = Queue()
-print(q)
-print(len(q))
-q.push(4)
-q.push(3)
-print(q)
-print(len(q))
-q.pull()
-print(q)
+# q = Queue()
+# print(q)
+# print(len(q))
+# q.push(4)
+# q.push(3)
+# print(q)
+# print(len(q))
+# q.pull()
+# print(q)
 
 
 # st = Stack([1, 2, 3])
