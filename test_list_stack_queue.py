@@ -1,6 +1,7 @@
 import unittest
 import t4_list_stack_queue as t4
 
+
 class LinkedListTest(unittest.TestCase):
     def test_empty_len(self):
         self.llist = t4.LinkedList()

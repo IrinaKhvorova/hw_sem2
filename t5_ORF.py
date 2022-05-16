@@ -1,46 +1,39 @@
-from Bio import SeqIO
+import re
 
 
-class DNA:
-    alphabet = ['A', 'T', 'G', 'C']
+def find_orfs(path):
+    alphabet = 'ACGT'
+    orfs = []
+    try:
+        with open(path) as f:
+            idx = 0
+            for line in f:
+                idx += 1
+                if idx % 2 == 1:
+                    continue
+                seq = line.strip()
+                if not seq.isupper():
+                    print(seq)
+                    raise ValueError("Sequence is not uppercase")
+                if any(c not in alphabet for c in seq):
+                    raise ValueError("Sequence contains invalid characters")
+                seq = seq.replace('T', 'U')
+                starts = list(re.finditer("AUG", seq))
+                ends = list(re.finditer("UAA", seq)) + list(re.finditer("UGA", seq)) + list(re.finditer("UAG", seq))
+                for start in starts:
+                    start_pos = start.regs[0][0]
+                    for end in ends:
+                        end_pos = end.regs[0][1]
+                        if end_pos - start_pos >= 100:
+                            orfs.append(seq[start_pos:end_pos].replace('U', 'T'))
+            print(orfs)
+    except FileNotFoundError:
+        print('Файл отсутствует')
+    return orfs
 
-    def __init__(self, name, seq):
-        self.name = name
-        self.seq = seq
 
-    def __len__(self):
-        return len(self.seq)  # возвращает длину последовательности
-
-    def statistics(self):
-        stat = dict.fromkeys(self.alphabet, 0)
-        for i in self.seq:
-            stat[i] += 1
-        return stat  # возвращает статистику по использованию символов
-
-    def complement(self):
-        comp_seq = ''
-        comp = {'A': 'T', 'T': 'A', 'G': 'C', 'C': 'G'}
-        for i in self.seq:
-            comp_seq += comp[i]
-        return comp_seq #возвращает комплементарную последовательность
-
-    def transcription(self):
-        rna_seq = ''
-        comp = {'A': 'Y', 'T': 'A', 'G': 'C', 'C': 'G'} #ДНК как матричная
-        for i in self.seq:
-            rna_seq += comp[i]
-        return rna_seq #возвращает последовательность РНК
-
-
-def read_fasta(file_name):
-    with open(file_name, "r") as file:
-        seqs, max_name, max_len, max_stat = [], 0, 0, 0
-        for record in SeqIO.parse(file, 'fasta'):  # итерация по строкам
-            cur_seq = DNA(str(record.id), str(record.seq))
-            comp_seq = DNA(cur_seq.name, cur_seq.complement()[::-1])
-            print(cur_seq.seq, comp_seq.seq, sep='\n')
-            seqs.append(cur_seq.transcription())
-            seqs.append(comp_seq.transcription())
-    return seqs
-
-test = read_fasta('test.fasta')
+if __name__ == '__main__':
+    try:
+        find_orfs('test.fasta')
+    except ValueError as err:
+        print(err)
